@@ -12,7 +12,11 @@
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
+#include <GuiFoundation/Action/Action.h>
+#include <GuiFoundation/Action/ActionManager.h>
 
+ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
+ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);
 ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
 \n\
@@ -139,8 +143,8 @@ public:
     DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
-
-    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless);
+    const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
+    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless, sOutputDir);
     ezQtUiServices::SetHeadless(true);
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
@@ -167,6 +171,12 @@ public:
         else
         {
           ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+
+          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
+          {
+            ezActionContext context;
+            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+          }
         }
 
         QApplication::quit();
