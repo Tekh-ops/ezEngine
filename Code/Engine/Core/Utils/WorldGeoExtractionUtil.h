@@ -4,7 +4,6 @@
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Types/TagSet.h>
 
 class ezWorld;
@@ -20,7 +19,7 @@ class EZ_CORE_DLL ezWorldGeoExtractionUtil
 public:
   struct MeshObject
   {
-    ezSimdTransform m_GlobalTransform;
+    ezTransform m_GlobalTransform;
     ezCpuMeshResourceHandle m_hMeshResource;
   };
 
@@ -60,5 +59,5 @@ struct EZ_CORE_DLL ezMsgExtractGeometry : public ezMessage
   ezWorldGeoExtractionUtil::ExtractionMode m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
 
   /// \brief Append mesh objects to this to describe the requested world geometry
-  ezWorldGeoExtractionUtil::MeshObjectList m_MeshObjects;
+  ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects;
 };
